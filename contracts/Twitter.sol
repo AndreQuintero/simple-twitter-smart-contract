@@ -2,14 +2,17 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Strings.sol";
+
 contract Twitter {
     struct Tweet {
+        uint256 id;
         address author;
         string content;
         uint256 timestamp;
         uint256 likes;
     }
-    uint16 public TWEEET_MAX_LENGTH = 280;
+    uint16 public TWEET_MAX_LENGTH = 280;
     mapping (address => Tweet[]) public tweets;
     address public owner;
 
@@ -22,21 +25,35 @@ contract Twitter {
         _;
     }
 
+    modifier tweetExists(address _author, uint256 _id) {
+        require(tweets[_author][_id].id == _id, "Tweet does not exist!");
+        _;
+    }
+
     function changeTweetLength(uint16 newTweetLength) public onlyOwner {
-        TWEEET_MAX_LENGTH = newTweetLength;
+        TWEET_MAX_LENGTH = newTweetLength;
     }
 
     function createTweet(string memory _tweet) public {
-        require(bytes(_tweet).length <= TWEEET_MAX_LENGTH, "Your tweet exceeded the limit of characters");
+        require(
+            bytes(_tweet).length <= TWEET_MAX_LENGTH,
+            string(
+                abi.encodePacked(
+                    "Your tweet exceeded the limit of characters: ",
+                    Strings.toString(TWEET_MAX_LENGTH)
+                )
+            )
+        );
 
         Tweet memory newTweet = Tweet({
+            id: tweets[msg.sender].length,
             author: msg.sender,
             content: _tweet,
             timestamp: block.timestamp,
             likes: 0
         });
 
-        return tweets[msg.sender].push(newTweet);
+        tweets[msg.sender].push(newTweet);
     }
 
     function getTweet(address _owner, uint256 _i) public view returns (Tweet memory) {
@@ -47,4 +64,12 @@ contract Twitter {
         return tweets[_owner];
     }
 
+    function likeTweet(address _author, uint256 _id) external tweetExists(_author, _id){
+        tweets[_author][_id].likes++;
+    }
+
+    function unlikeTweet(address _author, uint256 _id) external tweetExists(_author, _id){
+        require(tweets[_author][_id].likes > 0, "Tweet has no likes!");
+        tweets[_author][_id].likes--;
+    } 
 }
