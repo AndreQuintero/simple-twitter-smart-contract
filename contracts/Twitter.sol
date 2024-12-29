@@ -78,5 +78,14 @@ contract Twitter {
         require(tweets[_author][_id].likes > 0, "Tweet has no likes!");
         tweets[_author][_id].likes--;
         emit TweetUnliked(msg.sender, _author, _id, tweets[_author][_id].likes);
-    } 
+    }
+
+    function getTotalLikes(address _author) external view returns (uint) {
+        uint totalLikes;
+
+        for(uint i = 0; i < tweets[_author].length; i++) {
+            totalLikes += tweets[_author][i].likes;
+        }
+        return totalLikes;
+    }
 }

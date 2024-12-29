@@ -192,6 +192,25 @@
 				"inputs": [
 					{
 						"internalType": "address",
+						"name": "_author",
+						"type": "address"
+					}
+				],
+				"name": "getTotalLikes",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
 						"name": "_owner",
 						"type": "address"
 					},
@@ -361,11 +380,11 @@
 	},
 	"sources": {
 		"contracts/Twitter.sol": {
-			"keccak256": "0x8f394c51de0311b81db828670d9ca6ed57dec54c52fd0ec329c400de077463ae",
+			"keccak256": "0x674f190da674852e2d30b1a116bb06c5a769f6bdecf5dc8b19b70cc69284adaa",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://cd72ca1f1448e95ce9410508b04e30cb414130a2a2a129d31ba89cb1c479bac9",
-				"dweb:/ipfs/QmZBdwWZsDZkxx71jBHguhQNLiZvaKhBL8Qa9eWvd4FvSD"
+				"bzz-raw://0b2802cd67d2c227c6c8b5469c8d6118e822d0f381774ae7db873abf0b2402a7",
+				"dweb:/ipfs/QmWPp55XJH6GHwrFokgYssBxJ4TfzLLLFTQYeFW3XsMgea"
 			]
 		},
 		"https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Panic.sol": {
