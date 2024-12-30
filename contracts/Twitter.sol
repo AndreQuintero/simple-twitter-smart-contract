@@ -1,10 +1,11 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 
 pragma solidity >=0.7.0 <0.9.0;
 
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Twitter {
+contract Twitter is Ownable{
     struct Tweet {
         uint256 id;
         address author;
@@ -14,25 +15,18 @@ contract Twitter {
     }
     uint16 public TWEET_MAX_LENGTH = 280;
     mapping (address => Tweet[]) public tweets;
-    address public owner;
 
     event TweetCreated(uint256 id, address author, string content, uint256 timestamp);
     event TweetLiked(address liker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount);
     event TweetUnliked(address unliker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount);
 
-    constructor() {
-        owner = msg.sender;
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "You're not allowed to execute this operation");
-        _;
-    }
 
     modifier tweetExists(address _author, uint256 _id) {
         require(tweets[_author][_id].id == _id, "Tweet does not exist!");
         _;
     }
+
+    constructor() Ownable(msg.sender){}
 
     function changeTweetLength(uint16 newTweetLength) public onlyOwner {
         TWEET_MAX_LENGTH = newTweetLength;
