@@ -5,6 +5,14 @@ pragma solidity >=0.7.0 <0.9.0;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+interface IProfile {
+     struct UserProfile{
+        string displayName;
+        string bio;
+    }
+    function getProfile(address _user) external view returns (UserProfile memory);
+}
+
 contract Twitter is Ownable{
     struct Tweet {
         uint256 id;
@@ -15,6 +23,7 @@ contract Twitter is Ownable{
     }
     uint16 public TWEET_MAX_LENGTH = 280;
     mapping (address => Tweet[]) public tweets;
+    IProfile profileContract;
 
     event TweetCreated(uint256 id, address author, string content, uint256 timestamp);
     event TweetLiked(address liker, address tweetAuthor, uint256 tweetId, uint256 newLikeCount);
@@ -26,13 +35,21 @@ contract Twitter is Ownable{
         _;
     }
 
-    constructor() Ownable(msg.sender){}
+    modifier onlyRegistered() {
+       IProfile.UserProfile memory userProfile = profileContract.getProfile(msg.sender);
+       require(bytes(userProfile.displayName).length > 0 ,"User not registered!");
+       _;
+    }
+
+    constructor(address _profileContract) Ownable(msg.sender){
+        profileContract =  IProfile(_profileContract);
+    }
 
     function changeTweetLength(uint16 newTweetLength) public onlyOwner {
         TWEET_MAX_LENGTH = newTweetLength;
     }
 
-    function createTweet(string memory _tweet) public {
+    function createTweet(string memory _tweet) public onlyRegistered{
         require(
             bytes(_tweet).length <= TWEET_MAX_LENGTH,
             string(
@@ -63,12 +80,12 @@ contract Twitter is Ownable{
         return tweets[_owner];
     }
 
-    function likeTweet(address _author, uint256 _id) external tweetExists(_author, _id){
+    function likeTweet(address _author, uint256 _id) external tweetExists(_author, _id) onlyRegistered{
         tweets[_author][_id].likes++;
         emit TweetLiked(msg.sender, _author, _id, tweets[_author][_id].likes);
     }
 
-    function unlikeTweet(address _author, uint256 _id) external tweetExists(_author, _id){
+    function unlikeTweet(address _author, uint256 _id) external tweetExists(_author, _id) onlyRegistered{
         require(tweets[_author][_id].likes > 0, "Tweet has no likes!");
         tweets[_author][_id].likes--;
         emit TweetUnliked(msg.sender, _author, _id, tweets[_author][_id].likes);
